@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.example</groupId>
-  <artifactId>hw1</artifactId>
+  <artifactId>hw2</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>hw1 Maven Webapp</name>
+  <name>hw2 Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -20,12 +20,6 @@
       <artifactId>javax.servlet-api</artifactId>
       <version>4.0.1</version>
       <scope>provided</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.15.1</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-io -->
     <dependency>
@@ -61,8 +55,20 @@
       <artifactId>amqp-client</artifactId>
       <version>5.13.0</version>
     </dependency>
+    <!-- Apache Commons Pool -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-pool2</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.5</version>
+    </dependency>
   </dependencies>
   <build>
-    <finalName>hw1</finalName>
+    <finalName>hw2</finalName>
   </build>
 </project>
