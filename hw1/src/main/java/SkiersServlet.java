@@ -9,7 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet(name = "SkiersServlet", urlPatterns = {"/skiers"})
+@WebServlet(name = "SkiersServlet", urlPatterns = {"/"})
 public class SkiersServlet extends HttpServlet {
 
     @Override
@@ -81,16 +81,37 @@ public class SkiersServlet extends HttpServlet {
         try {
             if (urlPath.matches("/resorts/\\d+/seasons")) {
                 // Add a new season for a resort
+                int resortID = Integer.parseInt(urlParts[2]); // Extract the resortID
+
                 NewSeasonRequest newSeasonRequest = gson.fromJson(request.getReader(), NewSeasonRequest.class);
                 if (newSeasonRequest == null || newSeasonRequest.year == null) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.getWriter().write("{\"error\":\"Invalid request body\"}");
                     return;
                 }
+
                 // Process adding a new season here
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 response.getWriter().write("{\"message\":\"New season created\"}");
-            } else if (urlPath.matches("/\\d+/seasons/\\d+/days/\\d+/skiers/\\d+")) {
+
+                ///\d+/seasons/\d+/days/\d+/skiers/\d+
+            } else if (urlPath.matches("/skiers/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
+                // Extract dayID from urlParts
+                String dayIDStr = urlParts[6];
+
+                // Validate dayID
+                int dayID;
+                try {
+                    dayID = Integer.parseInt(dayIDStr);
+                    if (dayID < 1 || dayID > 366) {
+                        sendErrorResponse(response, "Invalid inputs", HttpServletResponse.SC_BAD_REQUEST);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    sendErrorResponse(response, "Invalid inputs", HttpServletResponse.SC_BAD_REQUEST);
+                    return;
+                }
+
                 // Write a new lift ride for the skier
                 LiftRide liftRide = gson.fromJson(request.getReader(), LiftRide.class);
                 if (liftRide == null || liftRide.getLiftID() <= 0 || liftRide.getTime() <= 0) {
@@ -101,6 +122,7 @@ public class SkiersServlet extends HttpServlet {
                 // Process the lift ride here
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 response.getWriter().write("{\"message\":\"Write successful\"}");
+
             } else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Invalid URL path\"}");
