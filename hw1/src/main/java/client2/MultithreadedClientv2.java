@@ -20,7 +20,7 @@ public class MultithreadedClientv2 {
     private static final int INITIAL_POSTS_PER_THREAD = 1000;
     private static final int INITIAL_THREAD_COUNT = 8;
     private static final int THREAD_COUNT = 2000; // Adjustable thread count
-    private static final String BASE_URL = "http://localhost:8080/asgnmt1_client1_war_exploded/skiers";
+    private static final String BASE_URL = "http://localhost:8080/asgnmt1_client1_war_exploded/";
     private static final Gson gson = new Gson();
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private static final List<Long> latencies = Collections.synchronizedList(new ArrayList<>());

@@ -10,6 +10,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import com.google.gson.Gson;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -19,8 +20,8 @@ public class MultithreadedClient {
     private static final int TOTAL_POSTS = 200000;
     private static final int INITIAL_POSTS_PER_THREAD = 1000;
     private static final int INITIAL_THREAD_COUNT = 32;
-    private static final int THREAD_COUNT = 2000; // Adjustable thread count
-    private static final String BASE_URL = "http://localhost:8080/asgnmt1_client1_war_exploded/skiers";
+    private static final int THREAD_COUNT = 128; // Adjustable thread count
+    private static final String BASE_URL = "http://localhost:8080/asgnmt1_client1_war_exploded";
     private static final Gson gson = new Gson();
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
@@ -93,25 +94,34 @@ public class MultithreadedClient {
 
     private static boolean postEvent(SkierLiftRideEvent event) {
         try {
-            String eventJson = gson.toJson(new LiftRide(event.getLiftID(), event.getTime()));
-            String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d", BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
-            HttpPost post = new HttpPost(POST_URL);
+            String eventJson = gson.toJson(event); // Assuming SkierLiftRideEvent matches the expected JSON structure
+            String postUrl = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
+                    BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
+
+            HttpPost post = new HttpPost(postUrl);
             post.setEntity(new StringEntity(eventJson));
             post.setHeader("Content-type", "application/json");
 
             HttpResponse response = httpClient.execute(post);
+            EntityUtils.consume(response.getEntity()); // Ensure the response entity is fully consumed
 
             int responseCode = response.getStatusLine().getStatusCode();
 
-            EntityUtils.consume(response.getEntity());
-
-            if (responseCode == 201) {
+            if (responseCode == HttpServletResponse.SC_CREATED) { // 201 indicates success
                 return true;
-            } else {
+            } else if (responseCode >= 400 && responseCode <= 499) {
+                // Client error, do not retry
+                return false;
+            } else if (responseCode >= 500) {
+                // Server error, attempt retry
                 return handleRetry(event);
+            } else {
+                // Unexpected response code
+                return false;
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
+            // Log or handle IOException
             return false;
         }
     }
@@ -124,7 +134,7 @@ public class MultithreadedClient {
                 retries++; // Increment retry counter
 
                 String eventJson = gson.toJson(new LiftRide(event.getLiftID(), event.getTime()));
-                String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
+                String POST_URL = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
                         BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
                 HttpPost post = new HttpPost(POST_URL);
                 post.setEntity(new StringEntity(eventJson));
