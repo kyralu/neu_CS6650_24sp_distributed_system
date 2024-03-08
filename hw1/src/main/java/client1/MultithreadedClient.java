@@ -21,7 +21,7 @@ public class MultithreadedClient {
     private static final int INITIAL_POSTS_PER_THREAD = 1000;
     private static final int INITIAL_THREAD_COUNT = 32;
     private static final int THREAD_COUNT = 128; // Adjustable thread count
-    private static final String BASE_URL = "http://localhost:8080/asgnmt1_client1_war_exploded";
+    private static final String BASE_URL = "http://localhost:8080/hw1_war_exploded/";
     private static final Gson gson = new Gson();
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
@@ -94,7 +94,7 @@ public class MultithreadedClient {
 
     private static boolean postEvent(SkierLiftRideEvent event) {
         try {
-            String eventJson = gson.toJson(event); // Assuming SkierLiftRideEvent matches the expected JSON structure
+            String eventJson = gson.toJson(new MultithreadedClient.LiftRide(event.getLiftID(), event.getTime())); // Assuming SkierLiftRideEvent matches the expected JSON structure
             String postUrl = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
                     BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
 
@@ -109,11 +109,9 @@ public class MultithreadedClient {
 
             if (responseCode == HttpServletResponse.SC_CREATED) { // 201 indicates success
                 return true;
-            } else if (responseCode >= 400 && responseCode <= 499) {
-                // Client error, do not retry
-                return false;
-            } else if (responseCode >= 500) {
-                // Server error, attempt retry
+            } else if (responseCode >= 400 && responseCode <= 599) {
+                // responseCode: 400 - 499, Servlet Client error, do not retry
+                // responseCode: 500 - 599, Web Server error, attempt retry
                 return handleRetry(event);
             } else {
                 // Unexpected response code

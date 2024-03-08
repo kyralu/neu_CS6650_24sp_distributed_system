@@ -10,12 +10,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import com.google.gson.Gson;
+
+import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SingleThreadedClient {
     private static final int TOTAL_EVENTS = 10000;
-    private static final String BASE_URL = "http://localhost:8080/asgnmt1_client1_war_exploded/skiers";
+    private static final String BASE_URL = "http://localhost:8080/hw1_war_exploded/";
     private static final Gson gson = new Gson();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
     private static final AtomicInteger unsuccessfulRequests = new AtomicInteger(0);
@@ -57,7 +59,7 @@ public class SingleThreadedClient {
     private static boolean postEvent(SkierLiftRideEvent event) {
         try {
             String eventJson = gson.toJson(new MultithreadedClient.LiftRide(event.getLiftID(), event.getTime()));
-            String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
+            String POST_URL = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
                     BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
             HttpPost post = new HttpPost(POST_URL);
             post.setEntity(new StringEntity(eventJson));
@@ -67,11 +69,17 @@ public class SingleThreadedClient {
             EntityUtils.consume(response.getEntity());
             int responseCode = response.getStatusLine().getStatusCode();
 
-            if (responseCode == 201) {
+            if (responseCode == HttpServletResponse.SC_CREATED) { // 201 indicates success
                 return true;
-            } else {
+            } else if (responseCode >= 400) {
+                // responseCode: 400 - 499, Client error, do not retry
+                // Server error, attempt retry
                 return handleRetry(event);
+            } else {
+                // Unexpected response code
+                return false;
             }
+
         } catch (Exception e) {
             return false;
         }
@@ -85,7 +93,7 @@ public class SingleThreadedClient {
                 retries++; // Increment retry counter
 
                 String eventJson = gson.toJson(new MultithreadedClient.LiftRide(event.getLiftID(), event.getTime()));
-                String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
+                String POST_URL = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
                         BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
                 HttpPost post = new HttpPost(POST_URL);
                 post.setEntity(new StringEntity(eventJson));
@@ -106,6 +114,7 @@ public class SingleThreadedClient {
                     System.out.println("Client error on retry for Skier ID: " + event.getSkierID() + ". Aborting retries.");
                     return false; // Client error, abort retrying
                 } // Continue retrying if server error (5XX)
+
             } catch (Exception e) {
                 System.out.println("Exception during retry for Skier ID: " + event.getSkierID() + ": " + e.getMessage());
             }

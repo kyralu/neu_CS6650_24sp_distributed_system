@@ -94,7 +94,6 @@ public class SkiersServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 response.getWriter().write("{\"message\":\"New season created\"}");
 
-                ///\d+/seasons/\d+/days/\d+/skiers/\d+
             } else if (urlPath.matches("/skiers/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
                 // Extract dayID from urlParts
                 String dayIDStr = urlParts[6];
