@@ -9,7 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet(name = "SkiersServlet", urlPatterns = {"/"})
+@WebServlet(name = "SkiersServlet", urlPatterns = {"/skiers"})
 public class SkiersServlet extends HttpServlet {
 
     @Override
@@ -79,24 +79,9 @@ public class SkiersServlet extends HttpServlet {
 
         // Determine the type of POST request
         try {
-            if (urlPath.matches("/resorts/\\d+/seasons")) {
-                // Add a new season for a resort
-                int resortID = Integer.parseInt(urlParts[2]); // Extract the resortID
-
-                NewSeasonRequest newSeasonRequest = gson.fromJson(request.getReader(), NewSeasonRequest.class);
-                if (newSeasonRequest == null || newSeasonRequest.year == null) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"error\":\"Invalid request body\"}");
-                    return;
-                }
-
-                // Process adding a new season here
-                response.setStatus(HttpServletResponse.SC_CREATED);
-                response.getWriter().write("{\"message\":\"New season created\"}");
-
-            } else if (urlPath.matches("/skiers/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
+            if (urlPath.matches("/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
                 // Extract dayID from urlParts
-                String dayIDStr = urlParts[6];
+                String dayIDStr = urlParts[5];
 
                 // Validate dayID
                 int dayID;

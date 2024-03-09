@@ -92,7 +92,7 @@ public class MultithreadedClientv2 {
 
         try {
             String eventJson = gson.toJson(new LiftRide(event.getLiftID(), event.getTime()));
-            String POST_URL = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d", BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
+            String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d", BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
             HttpPost post = new HttpPost(POST_URL);
             post.setEntity(new StringEntity(eventJson));
             post.setHeader("Content-type", "application/json");
@@ -137,7 +137,7 @@ public class MultithreadedClientv2 {
                 retries++; // Increment retry counter
 
                 String eventJson = gson.toJson(new LiftRide(event.getLiftID(), event.getTime()));
-                String POST_URL = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
+                String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
                         BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
                 HttpPost post = new HttpPost(POST_URL);
                 post.setEntity(new StringEntity(eventJson));

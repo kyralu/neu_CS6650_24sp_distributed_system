@@ -32,8 +32,7 @@ public class SkierMessageConsumer {
     private static void processMessage(String message) {
         Gson gson = new Gson();
         LiftRide liftRide = gson.fromJson(message, LiftRide.class);
-        // Implement your logic to process the message. For example, update the ConcurrentHashMap.
-        // Assuming LiftRide has a skierID and vertical value for simplicity.
+
         skierLiftRides.merge(liftRide.getSkierID(), liftRide.getVertical(), Integer::sum);
         System.out.println("Updated lift rides for skier: " + liftRide.getSkierID());
     }

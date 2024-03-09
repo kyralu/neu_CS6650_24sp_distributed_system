@@ -21,7 +21,7 @@ public class MultithreadedClient {
     private static final int INITIAL_POSTS_PER_THREAD = 1000;
     private static final int INITIAL_THREAD_COUNT = 32;
     private static final int THREAD_COUNT = 128; // Adjustable thread count
-    private static final String BASE_URL = "http://localhost:8080/hw1_war_exploded/";
+    private static final String BASE_URL = "http://localhost:8080/hw1_war_exploded/skiers";
     private static final Gson gson = new Gson();
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
@@ -95,7 +95,7 @@ public class MultithreadedClient {
     private static boolean postEvent(SkierLiftRideEvent event) {
         try {
             String eventJson = gson.toJson(new MultithreadedClient.LiftRide(event.getLiftID(), event.getTime())); // Assuming SkierLiftRideEvent matches the expected JSON structure
-            String postUrl = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
+            String postUrl = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
                     BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
 
             HttpPost post = new HttpPost(postUrl);
@@ -132,7 +132,7 @@ public class MultithreadedClient {
                 retries++; // Increment retry counter
 
                 String eventJson = gson.toJson(new LiftRide(event.getLiftID(), event.getTime()));
-                String POST_URL = String.format("%s/skiers/%d/seasons/%s/days/%s/skiers/%d",
+                String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
                         BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
                 HttpPost post = new HttpPost(POST_URL);
                 post.setEntity(new StringEntity(eventJson));

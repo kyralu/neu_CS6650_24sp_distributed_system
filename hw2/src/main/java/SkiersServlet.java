@@ -20,7 +20,7 @@ import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 
-@WebServlet(name = "SkiersServlet", urlPatterns = {"/skiers"})
+@WebServlet(name = "SkiersServlet", urlPatterns = {"/"})
 public class SkiersServlet extends HttpServlet {
     private ObjectPool<Channel> channelPool;
 
@@ -89,39 +89,49 @@ public class SkiersServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
         String urlPath = request.getPathInfo();
         Gson gson = new Gson();
-        response.setContentType("application/json");
+
+        // Validate the URL path
+        if (urlPath == null || urlPath.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("{\"error\":\"Missing parameters\"}");
+            return;
+        }
+
+        String[] urlParts = urlPath.split("/");
+        if (urlParts.length < 3) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\":\"Invalid URL format\"}");
+            return;
+        }
+
         Channel channel = null;
         String queueName = "skiersQueue";
-//        channel.queueDeclare(queueName, true, false, false, null);
+        //channel.queueDeclare(queueName, true, false, false, null);
 
         try {
-            // Validate URL Path
-            if (urlPath == null || urlPath.isEmpty()) {
-                sendErrorResponse(response, "Invalid URL path", HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
+            if (urlPath.matches("/skiers/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
+                String dayIDStr = urlParts[6]; // Adjust index according to your URL structure
 
-            // For different URL patterns, process and send to RabbitMQ differently
-            if (urlPath.matches("/resorts/\\d+/seasons")) {
-                NewSeasonRequest newSeasonRequest = gson.fromJson(request.getReader(), NewSeasonRequest.class);
-                if (newSeasonRequest == null || newSeasonRequest.getYear() == null) {
-                    sendErrorResponse(response, "Invalid request body", HttpServletResponse.SC_BAD_REQUEST);
+                // Validate dayID
+                int dayID;
+                try {
+                    dayID = Integer.parseInt(dayIDStr);
+                    if (dayID < 1 || dayID > 366) {
+                        sendErrorResponse(response, "Invalid day ID", HttpServletResponse.SC_BAD_REQUEST);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    sendErrorResponse(response, "Day ID must be a number", HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
 
-                // Serialize and send to RabbitMQ
-                String message = gson.toJson(newSeasonRequest);
-                channel = channelPool.borrowObject(); // Obtain a channel
-                channel.basicPublish("", queueName, null, message.getBytes());
-                response.setStatus(HttpServletResponse.SC_CREATED);
-                response.getWriter().write("{\"message\":\"New season created and queued\"}");
-
-            } else if (urlPath.matches("/\\d+/seasons/\\d+/days/\\d+/skiers/\\d+")) {
                 LiftRide liftRide = gson.fromJson(request.getReader(), LiftRide.class);
                 if (liftRide == null || liftRide.getLiftID() <= 0 || liftRide.getTime() <= 0) {
-                    sendErrorResponse(response, "Invalid request body", HttpServletResponse.SC_BAD_REQUEST);
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("{\"error\":\"Invalid request body\"}");
                     return;
                 }
 
@@ -133,10 +143,13 @@ public class SkiersServlet extends HttpServlet {
                 response.getWriter().write("{\"message\":\"Lift ride recorded and queued\"}");
 
             } else {
-                sendErrorResponse(response, "Invalid URL path", HttpServletResponse.SC_BAD_REQUEST);
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"error2\":\"Invalid URL path\"}");
             }
+
         } catch (JsonSyntaxException e) {
-            sendErrorResponse(response, "Invalid JSON format", HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\":\"Invalid JSON format\"}");
         } catch (Exception e) {
             sendErrorResponse(response, "Server error: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
