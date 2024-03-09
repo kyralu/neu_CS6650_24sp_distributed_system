@@ -20,7 +20,7 @@ import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 
-@WebServlet(name = "SkiersServlet", urlPatterns = {"/"})
+@WebServlet(name = "SkiersServlet", urlPatterns = {"/skiers"})
 public class SkiersServlet extends HttpServlet {
     private ObjectPool<Channel> channelPool;
 
@@ -112,8 +112,8 @@ public class SkiersServlet extends HttpServlet {
         //channel.queueDeclare(queueName, true, false, false, null);
 
         try {
-            if (urlPath.matches("/skiers/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
-                String dayIDStr = urlParts[6]; // Adjust index according to your URL structure
+            if (urlPath.matches("/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
+                String dayIDStr = urlParts[5]; // Adjust index according to your URL structure
 
                 // Validate dayID
                 int dayID;
@@ -223,5 +223,4 @@ public class SkiersServlet extends HttpServlet {
 //TODO:
 //will the curr queue always there?
 //how to clear the queue and read the msg from the rabbitmq page
-//install rabbitmq on ec2 instance & create and run these on different instances?
 //consumer not processing the msg? is the msg not done correctly?
