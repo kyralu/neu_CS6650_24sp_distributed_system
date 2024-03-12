@@ -15,21 +15,31 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+
 
 public class MultithreadedClient {
     private static final int TOTAL_POSTS = 200000;
     private static final int INITIAL_POSTS_PER_THREAD = 1000;
     private static final int INITIAL_THREAD_COUNT = 32;
-    private static final int THREAD_COUNT = 128; // Adjustable thread count
-    private static final String BASE_URL = "http://localhost:8080/hw1_war_exploded/skiers";
+    private static final int THREAD_COUNT = 256; // Adjustable thread count
+    private static final String BASE_URL = "http://ec2-34-209-133-189.us-west-2.compute.amazonaws.com/hw2_server/skiers/";
     private static final Gson gson = new Gson();
-    private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
     private static final AtomicInteger unsuccessfulRequests = new AtomicInteger(0);
+
+    public static CloseableHttpClient createHttpClient() {
+        PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager();
+        manager.setDefaultMaxPerRoute(100);
+        manager.setMaxTotal(100);
+        return HttpClients.custom().setConnectionManager(manager).disableAutomaticRetries().build();
+    }
 
     public static void main(String[] args) throws InterruptedException, IOException {
 
         BlockingQueue<SkierLiftRideEvent> eventsQueue = new ArrayBlockingQueue<>(TOTAL_POSTS);
+
+        CloseableHttpClient httpClient = createHttpClient();
 
         long startTime = System.currentTimeMillis();
 
@@ -47,7 +57,7 @@ public class MultithreadedClient {
                 for (int j = 0; j < INITIAL_POSTS_PER_THREAD; j++) {
                     SkierLiftRideEvent event = eventsQueue.poll();
                     if (event != null) {
-                        if (postEvent(event)) {
+                        if (postEvent(httpClient, event)) {
                             successfulRequests.incrementAndGet();
                         } else {
                             unsuccessfulRequests.incrementAndGet();
@@ -63,7 +73,7 @@ public class MultithreadedClient {
                 while (!eventsQueue.isEmpty()) {
                     SkierLiftRideEvent event = eventsQueue.poll();
                     if (event != null) {
-                        if (postEvent(event)) {
+                        if (postEvent(httpClient, event)) {
                             successfulRequests.incrementAndGet();
                         } else {
                             unsuccessfulRequests.incrementAndGet();
@@ -78,7 +88,12 @@ public class MultithreadedClient {
             thread.join(); // Wait for each thread to finish
         }
 
-        httpClient.close();
+
+        try {
+            httpClient.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         long endTime = System.currentTimeMillis();
 
@@ -92,7 +107,7 @@ public class MultithreadedClient {
 
     }
 
-    private static boolean postEvent(SkierLiftRideEvent event) {
+    private static boolean postEvent(CloseableHttpClient httpClient, SkierLiftRideEvent event) {
         try {
             String eventJson = gson.toJson(new MultithreadedClient.LiftRide(event.getLiftID(), event.getTime())); // Assuming SkierLiftRideEvent matches the expected JSON structure
             String postUrl = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
@@ -112,7 +127,7 @@ public class MultithreadedClient {
             } else if (responseCode >= 400 && responseCode <= 599) {
                 // responseCode: 400 - 499, Servlet Client error, do not retry
                 // responseCode: 500 - 599, Web Server error, attempt retry
-                return handleRetry(event);
+                return handleRetry(httpClient, event);
             } else {
                 // Unexpected response code
                 return false;
@@ -125,7 +140,7 @@ public class MultithreadedClient {
     }
 
     // If the client gets a 5XX/ 4XX Code, retry the request up to 5 times before counting it as a failed request
-    private static boolean handleRetry(SkierLiftRideEvent event) {
+    private static boolean handleRetry(CloseableHttpClient httpClient, SkierLiftRideEvent event) {
         int retries = 0;
         while (retries < 5) { // Try up to 5 retries
             try {

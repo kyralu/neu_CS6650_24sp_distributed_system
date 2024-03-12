@@ -23,13 +23,17 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 @WebServlet(name = "SkiersServlet", urlPatterns = {"/skiers"})
 public class SkiersServlet extends HttpServlet {
     private ObjectPool<Channel> channelPool;
+    private final static String HOST = "ec2-52-12-161-184.us-west-2.compute.amazonaws.com";
 
     @Override
     public void init() throws ServletException {
         try {
             // Initialize RabbitMQ connection
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
+
+            factory.setHost(HOST);
+            factory.setUsername("kyra");
+            factory.setPassword("123");
 
             Connection connection = factory.newConnection();
 

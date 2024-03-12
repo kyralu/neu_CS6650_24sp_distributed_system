@@ -7,6 +7,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import com.google.gson.Gson;
 
@@ -21,17 +22,26 @@ public class MultithreadedClientv2 {
     private static final int INITIAL_POSTS_PER_THREAD = 1000;
     private static final int INITIAL_THREAD_COUNT = 8;
     private static final int THREAD_COUNT = 128; // Adjustable thread count
-    private static final String BASE_URL = "http://localhost:8080/hw1_war_exploded/";
+    private static final String BASE_URL = "http://ec2-54-149-174-40.us-west-2.compute.amazonaws.com/hw2_server/skiers/";
     private static final Gson gson = new Gson();
-    private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private static final List<Long> latencies = Collections.synchronizedList(new ArrayList<>());
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
     private static final AtomicInteger unsuccessfulRequests = new AtomicInteger(0);
     private static final String CSV_FILE = "results.csv";
 
+    public static CloseableHttpClient createHttpClient() {
+        PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager();
+        manager.setDefaultMaxPerRoute(100);
+        manager.setMaxTotal(100);
+        return HttpClients.custom().setConnectionManager(manager).disableAutomaticRetries().build();
+    }
+
     public static void main(String[] args) throws InterruptedException, IOException {
 
         BlockingQueue<SkierLiftRideEvent> eventsQueue = new ArrayBlockingQueue<>(TOTAL_POSTS);
+
+        CloseableHttpClient httpClient = createHttpClient();
+
         for (int i = 0; i < TOTAL_POSTS; i++) {
             eventsQueue.offer(DataGenerator.generateRandomEvent());
         }
@@ -48,7 +58,7 @@ public class MultithreadedClientv2 {
                 for (int j = 0; j < INITIAL_POSTS_PER_THREAD; j++) {
                     SkierLiftRideEvent event = eventsQueue.poll();
                     if (event != null) {
-                        if (postEvent(event)) {
+                        if (postEvent(httpClient, event)) {
                             successfulRequests.incrementAndGet();
                         } else {
                             unsuccessfulRequests.incrementAndGet();
@@ -63,7 +73,7 @@ public class MultithreadedClientv2 {
                 while (!eventsQueue.isEmpty()) {
                     SkierLiftRideEvent event = eventsQueue.poll();
                     if (event != null) {
-                        if (postEvent(event)) {
+                        if (postEvent(httpClient, event)) {
                             successfulRequests.incrementAndGet();
                         } else {
                             unsuccessfulRequests.incrementAndGet();
@@ -87,7 +97,7 @@ public class MultithreadedClientv2 {
         writePerformanceMetrics(startTime, endTime);
     }
 
-    private static boolean postEvent(SkierLiftRideEvent event) {
+    private static boolean postEvent(CloseableHttpClient httpClient, SkierLiftRideEvent event) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -113,7 +123,7 @@ public class MultithreadedClientv2 {
             } else if (responseCode >= 400 && responseCode <= 599) {
                 // responseCode: 400 - 499, Servlet Client error, do not retry
                 // responseCode: 500 - 599, Web Server error, attempt retry
-                return handleRetry(event);
+                return handleRetry(httpClient, event);
             } else {
                 // Unexpected response code
                 return false;
@@ -130,7 +140,7 @@ public class MultithreadedClientv2 {
     }
 
     // If the client gets a 5XX/ 4XX Code, retry the request up to 5 times before counting it as a failed request
-    private static boolean handleRetry(SkierLiftRideEvent event) {
+    private static boolean handleRetry(CloseableHttpClient httpClient, SkierLiftRideEvent event) {
         int retries = 0;
         while (retries < 5) { // Try up to 5 retries
             try {

@@ -8,6 +8,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import com.google.gson.Gson;
 
@@ -17,19 +18,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SingleThreadedClient {
     private static final int TOTAL_EVENTS = 10000;
-    private static final String BASE_URL = "http://localhost:8080/hw1_war_exploded/skiers";
+    private static final String BASE_URL = "http://ec2-54-149-174-40.us-west-2.compute.amazonaws.com/hw2_server/skiers/";
     private static final Gson gson = new Gson();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
     private static final AtomicInteger unsuccessfulRequests = new AtomicInteger(0);
-    private static CloseableHttpClient httpClient = HttpClients.createDefault();
+
+    public static CloseableHttpClient createHttpClient() {
+        PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager();
+        manager.setDefaultMaxPerRoute(100);
+        manager.setMaxTotal(100);
+        return HttpClients.custom().setConnectionManager(manager).disableAutomaticRetries().build();
+    }
 
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
 
+        CloseableHttpClient httpClient = createHttpClient();
+
         // Process each event sequentially
         for (int i = 0; i < TOTAL_EVENTS; i++) {
             SkierLiftRideEvent event = DataGenerator.generateRandomEvent();
-            boolean result = postEvent(event);
+            boolean result = postEvent(httpClient, event);
 
             if (result) {
                 successfulRequests.incrementAndGet();
@@ -56,7 +65,7 @@ public class SingleThreadedClient {
         System.out.println("Total throughput (requests per second): " + throughput);
     }
 
-    private static boolean postEvent(SkierLiftRideEvent event) {
+    private static boolean postEvent(CloseableHttpClient httpClient, SkierLiftRideEvent event) {
         try {
             String eventJson = gson.toJson(new MultithreadedClient.LiftRide(event.getLiftID(), event.getTime()));
             String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
@@ -74,7 +83,7 @@ public class SingleThreadedClient {
             } else if (responseCode >= 400) {
                 // responseCode: 400 - 499, Client error, do not retry
                 // Server error, attempt retry
-                return handleRetry(event);
+                return handleRetry(httpClient, event);
             } else {
                 // Unexpected response code
                 return false;
@@ -86,7 +95,7 @@ public class SingleThreadedClient {
     }
 
     // If the client gets a 5XX/ 4XX Code, retry the request up to 5 times before counting it as a failed request
-    private static boolean handleRetry(SkierLiftRideEvent event) {
+    private static boolean handleRetry(CloseableHttpClient httpClient, SkierLiftRideEvent event) {
         int retries = 0;
         while (retries < 5) { // Try up to 5 retries
             try {
