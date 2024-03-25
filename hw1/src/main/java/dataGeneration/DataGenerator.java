@@ -11,7 +11,7 @@ public class DataGenerator {
         int resortID = 1 + random.nextInt(10);    // ResortID between 1 and 10
         int liftID = 1 + random.nextInt(40);      // LiftID between 1 and 40
         String seasonID = "2024";                 // SeasonID is 2024
-        String dayID = "1";                       // DayID is 1
+        String dayID = String.valueOf(1 + random.nextInt(360)); // DayID between 1 and 360
         int time = 1 + random.nextInt(360);       // Time between 1 and 360
 
         return new SkierLiftRideEvent(skierID, resortID, liftID, seasonID, dayID, time);

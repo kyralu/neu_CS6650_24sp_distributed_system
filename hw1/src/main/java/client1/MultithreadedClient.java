@@ -23,7 +23,7 @@ public class MultithreadedClient {
     private static final int INITIAL_POSTS_PER_THREAD = 1000;
     private static final int INITIAL_THREAD_COUNT = 32;
     private static final int THREAD_COUNT = 256; // Adjustable thread count
-    private static final String BASE_URL = "http://ec2-34-209-133-189.us-west-2.compute.amazonaws.com/hw2_server/skiers/";
+    private static final String BASE_URL = "http://localhost:8080/hw2_war_exploded/skiers/";
     private static final Gson gson = new Gson();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
     private static final AtomicInteger unsuccessfulRequests = new AtomicInteger(0);

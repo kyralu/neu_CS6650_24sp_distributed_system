@@ -17,8 +17,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SingleThreadedClient {
-    private static final int TOTAL_EVENTS = 10000;
-    private static final String BASE_URL = "http://ec2-54-149-174-40.us-west-2.compute.amazonaws.com/hw2_server/skiers/";
+    private static final int TOTAL_EVENTS = 200;
+    private static final String BASE_URL = "http://localhost:8080/hw2_war_exploded/skiers/";
     private static final Gson gson = new Gson();
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
     private static final AtomicInteger unsuccessfulRequests = new AtomicInteger(0);
@@ -67,6 +67,9 @@ public class SingleThreadedClient {
 
     private static boolean postEvent(CloseableHttpClient httpClient, SkierLiftRideEvent event) {
         try {
+            // Log the event details
+            System.out.println("Posting event: " + gson.toJson(event));
+
             String eventJson = gson.toJson(new MultithreadedClient.LiftRide(event.getLiftID(), event.getTime()));
             String POST_URL = String.format("%s/%d/seasons/%s/days/%s/skiers/%d",
                     BASE_URL, event.getResortID(), event.getSeasonID(), event.getDayID(), event.getSkierID());
