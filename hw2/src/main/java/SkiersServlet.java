@@ -23,7 +23,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 @WebServlet(name = "SkiersServlet", urlPatterns = {"/skiers"})
 public class SkiersServlet extends HttpServlet {
     private ObjectPool<Channel> channelPool;
-    private final static String HOST = "ec2-52-12-161-184.us-west-2.compute.amazonaws.com";
+    private final static String HOST = "localhost";
 
     @Override
     public void init() throws ServletException {
@@ -64,17 +64,15 @@ public class SkiersServlet extends HttpServlet {
         }
 
         // Assuming pathParts[1] is resortID, pathParts[3] is seasonID, pathParts[5] is dayID, and pathParts[7] is skierID
-        int resortID;
-        int seasonID;
-        int dayID;
-        int skierID;
+        int resortID, skierID;
+        String seasonID, dayID;
         try {
             resortID = Integer.parseInt(pathParts[1]);
-            seasonID = Integer.parseInt(pathParts[3]);
-            dayID = Integer.parseInt(pathParts[5]);
             skierID = Integer.parseInt(pathParts[7]);
+            seasonID = pathParts[3];
+            dayID = pathParts[5];
         } catch (NumberFormatException e) {
-            sendErrorResponse(response, "Invalid skier ID.", HttpServletResponse.SC_BAD_REQUEST);
+            sendErrorResponse(response, "Invalid number format in URL.", HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -98,70 +96,68 @@ public class SkiersServlet extends HttpServlet {
         Gson gson = new Gson();
 
         // Validate the URL path
-        if (urlPath == null || urlPath.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.getWriter().write("{\"error\":\"Missing parameters\"}");
-            return;
-        }
-
-        String[] urlParts = urlPath.split("/");
-        if (urlParts.length < 3) {
+        if (urlPath == null || urlPath.isEmpty() || !urlPath.matches("/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\":\"Invalid URL format\"}");
             return;
         }
 
+        String[] urlParts = urlPath.split("/");
+        int resortID, skierID;
+        String seasonID, dayID;
+        try {
+            resortID = Integer.parseInt(urlParts[1]);
+            skierID = Integer.parseInt(urlParts[7]);
+            seasonID = urlParts[3];
+            dayID = urlParts[5];
+
+            // Validate dayID
+            try {
+                int day = Integer.parseInt(dayID);
+                if (day < 1 || day > 366) {
+                    sendErrorResponse(response, "Invalid day ID", HttpServletResponse.SC_BAD_REQUEST);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                sendErrorResponse(response, "Day ID must be a number", HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+        } catch (NumberFormatException e) {
+            sendErrorResponse(response, "Invalid number format in URL.", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // Parse the body to get liftID and time
+        LiftRide liftRideFromBody = gson.fromJson(request.getReader(), LiftRide.class);
+        if (liftRideFromBody == null || liftRideFromBody.getLiftID() <= 0 || liftRideFromBody.getTime() <= 0) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\":\"Invalid request body\"}");
+            return;
+        }
+
+        // Create a LiftRide object with full information
+        LiftRide liftRide = new LiftRide(skierID, resortID, liftRideFromBody.getLiftID(), seasonID, dayID, liftRideFromBody.getTime());
+
+        // Serialize and send to RabbitMQ
+        String message = gson.toJson(liftRide);
         Channel channel = null;
         String queueName = "skiersQueue";
         //channel.queueDeclare(queueName, true, false, false, null);
 
         try {
-            if (urlPath.matches("/\\d+/seasons/[^/]+/days/[^/]+/skiers/\\d+")) {
-                String dayIDStr = urlParts[5]; // Adjust index according to your URL structure
-
-                // Validate dayID
-                int dayID;
-                try {
-                    dayID = Integer.parseInt(dayIDStr);
-                    if (dayID < 1 || dayID > 366) {
-                        sendErrorResponse(response, "Invalid day ID", HttpServletResponse.SC_BAD_REQUEST);
-                        return;
-                    }
-                } catch (NumberFormatException e) {
-                    sendErrorResponse(response, "Day ID must be a number", HttpServletResponse.SC_BAD_REQUEST);
-                    return;
-                }
-
-                LiftRide liftRide = gson.fromJson(request.getReader(), LiftRide.class);
-                if (liftRide == null || liftRide.getLiftID() <= 0 || liftRide.getTime() <= 0) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"error\":\"Invalid request body\"}");
-                    return;
-                }
-
-                // Serialize and send to RabbitMQ
-                String message = gson.toJson(liftRide);
-                channel = channelPool.borrowObject(); // Obtain a channel
-                channel.basicPublish("", queueName, null, message.getBytes());
-                response.setStatus(HttpServletResponse.SC_CREATED);
-                response.getWriter().write("{\"message\":\"Lift ride recorded and queued\"}");
-
-            } else {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error2\":\"Invalid URL path\"}");
-            }
-
-        } catch (JsonSyntaxException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Invalid JSON format\"}");
+            channel = channelPool.borrowObject(); // Obtain a channel from the pool
+            channel.basicPublish("", queueName, null, message.getBytes());
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.getWriter().write("{\"message\":\"Lift ride recorded and queued\"}");
         } catch (Exception e) {
             sendErrorResponse(response, "Server error: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             if (channel != null) {
                 try {
-                    channelPool.returnObject(channel); // Return channel to the pool
+                    channelPool.returnObject(channel); // Return the channel to the pool
                 } catch (Exception e) {
-                    // Handle channel return exception
+                    throw new RuntimeException(e);
                 }
             }
         }
@@ -172,33 +168,42 @@ public class SkiersServlet extends HttpServlet {
         response.getWriter().write(String.format("{\"error\":\"%s\"}", message));
     }
 
-    public static class NewSeasonRequest {
-        private String year;
-
-        // Constructor
-        public NewSeasonRequest(String year) {
-            this.year = year;
-        }
-
-        // Getter
-        public String getYear() {
-            return year;
-        }
-
-        // Setter
-        public void setYear(String year) {
-            this.year = year;
-        }
-    }
-
     public static class LiftRide {
+        private int skierID;
+        private int resortID;
         private int liftID;
+        private String seasonID;
+        private String dayID;
         private int time;
 
         // Constructor
-        public LiftRide(int liftID, int time) {
+        public LiftRide(int skierID, int resortID, int liftID, String seasonID, String dayID, int time) {
+            this.skierID = skierID;
+            this.resortID = resortID;
             this.liftID = liftID;
+            this.seasonID = seasonID;
+            this.dayID = dayID;
             this.time = time;
+        }
+
+        // Getter for skierID
+        public int getSkierID() {
+            return skierID;
+        }
+
+        // Setter for skierID
+        public void setSkierID(int skierID) {
+            this.skierID = skierID;
+        }
+
+        // Getter for resortID
+        public int getResortID() {
+            return resortID;
+        }
+
+        // Setter for resortID
+        public void setResortID(int resortID) {
+            this.resortID = resortID;
         }
 
         // Getter for liftID
@@ -209,6 +214,26 @@ public class SkiersServlet extends HttpServlet {
         // Setter for liftID
         public void setLiftID(int liftID) {
             this.liftID = liftID;
+        }
+
+        // Getter for seasonID
+        public String getSeasonID() {
+            return seasonID;
+        }
+
+        // Setter for seasonID
+        public void setSeasonID(String seasonID) {
+            this.seasonID = seasonID;
+        }
+
+        // Getter for dayID
+        public String getDayID() {
+            return dayID;
+        }
+
+        // Setter for seasonID
+        public void setDayID(String dayID) {
+            this.dayID = dayID;
         }
 
         // Getter for time
