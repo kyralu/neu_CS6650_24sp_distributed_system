@@ -24,25 +24,25 @@ import redis.clients.jedis.Jedis;
 public class SkierMessageConsumer {
 
     private final static String QUEUE_NAME = "skiersQueue";
-    private final static String HOST = "ec2-52-12-161-184.us-west-2.compute.amazonaws.com";
-    private static final ConcurrentHashMap<String, Integer> skierLiftRides = new ConcurrentHashMap<>();
+    private final static String HOST = "localhost";
     private static final int THREAD_POOL_SIZE = 4;
-    private DynamoDbClient dynamoDb;
-    private final String tableName = "SkierData"; // Change to DynamoDB table name
-    private static final String AWS_ACCESS_KEY_ID="";
-    private static final String AWS_SECRET_ACCESS_KEY="";
-    private final String AWS_SESSION_TOKEN="";
-
-    private static DynamoDbClient dynamoDbClient;
+//    For DYNAMODB
+//    private static final ConcurrentHashMap<String, Integer> skierLiftRides = new ConcurrentHashMap<>();
+//    private DynamoDbClient dynamoDb;
+//    private final String tableName = "SkierData"; // Change to DynamoDB table name
+//    private static final String AWS_ACCESS_KEY_ID="";
+//    private static final String AWS_SECRET_ACCESS_KEY="";
+//    private final String AWS_SESSION_TOKEN="";
+//    private static DynamoDbClient dynamoDbClient;
 
     public static void main(String[] argv) throws IOException, TimeoutException {
-        // Initialize DynamoDB client
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY);
-
-        dynamoDbClient = DynamoDbClient.builder()
-                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
-                .region(Region.US_WEST_2) // Change to the region
-                .build();
+//         Initialize DynamoDB client
+//        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY);
+//
+//        dynamoDbClient = DynamoDbClient.builder()
+//                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+//                .region(Region.US_WEST_2) // Change to the region
+//                .build();
 
 
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -81,6 +81,7 @@ public class SkierMessageConsumer {
         String seasonID = liftRide.getSeasonID();
 
         try (Jedis jedis = RedisClient.getPool().getResource()) {
+
             // Add the day to the set of days and seasons the skier has skied
             // For skier N, how many days have they skied this season?
             jedis.sadd("skier:" + skierID + "season:" + seasonID + ":days" , dayID);
