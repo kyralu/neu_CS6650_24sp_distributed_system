@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="874ef5a0-8400-4e9e-a2be-26daecdb39df" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../hw3/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/src/main/java/client1/MultithreadedClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/src/main/java/client1/MultithreadedClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/src/main/java/client1/SingleThreadedClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/src/main/java/client1/SingleThreadedClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/classes/client1/MultithreadedClient$LiftRide.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/classes/client1/MultithreadedClient$LiftRide.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/classes/client1/MultithreadedClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/classes/client1/MultithreadedClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/classes/client1/SingleThreadedClient$LiftRide.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/classes/client1/SingleThreadedClient$LiftRide.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/classes/client1/SingleThreadedClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/classes/client1/SingleThreadedClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/classes/dataGeneration/DataGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/classes/dataGeneration/DataGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/MultithreadedClient$LiftRide.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/MultithreadedClient$LiftRide.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/MultithreadedClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/MultithreadedClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/SingleThreadedClient$LiftRide.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/SingleThreadedClient$LiftRide.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/SingleThreadedClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client1/SingleThreadedClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client2/MultithreadedClientv2$LiftRide.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client2/MultithreadedClientv2$LiftRide.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client2/MultithreadedClientv2.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/client2/MultithreadedClientv2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/dataGeneration/DataGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/dataGeneration/DataGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/dataGeneration/SkierLiftRideEvent.class" beforeDir="false" afterPath="$PROJECT_DIR$/../hw1/target/hw1/WEB-INF/classes/dataGeneration/SkierLiftRideEvent.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw2/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../hw2/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw2/src/main/java/SkierMessageConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../hw2/src/main/java/SkierMessageConsumer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw2/src/main/java/SkiersServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/../hw2/src/main/java/SkiersServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw3/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../hw3/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw3/src/main/java/RedisClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/../hw3/src/main/java/RedisClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../hw3/src/main/java/SkierMessageConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../hw3/src/main/java/SkierMessageConsumer.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2enimaMkEYYBqQ0DC9UuGbSl22c" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="874ef5a0-8400-4e9e-a2be-26daecdb39df" name="Changes" comment="" />
+      <created>1712546903841</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1712546903841</updated>
+      <workItem from="1712546905102" duration="686000" />
+      <workItem from="1712776916509" duration="1179000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
