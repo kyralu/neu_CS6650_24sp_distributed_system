@@ -18,8 +18,8 @@ public class Constants {
 
   // AWS DynamoDB
   public static final String TABLE_NAME = "SkierLiftRideData";
-  public static final String AWS_ACCESS_KEY = "ASIA2UC3BCS5TSUKM43Y";
-  public static final String AWS_SECRET_KEY = "g/FRGzh2m/qf2JWkfDu2khj1NZ4KZMhmb9x73w3l";
-  public static final String AWS_SESSION_TOKEN = "IQoJb3JpZ2luX2VjEND//////////wEaCXVzLXdlc3QtMiJHMEUCIQDNp2N1055SViKVSJFmQS/KeL2JRCQ9KtlRCtO4Rjq4LwIgAzhrh0+P5TCNHvoT5goIPk280Z1LBbXxuc3FmelCybkquwII+f//////////ARAAGgw3MzAzMzUzNTE5OTUiDKieyK+txMVBjHgzNyqPAnN00bkrMu4SethmPzEcspIsypsL6md9AgRKt5vzp8dfX66lwyEbN14lel0AloOEGHrZe4APPku92f1xk8mIn0ihiNc+kc72vGOsqjO3diUDmh037Esm9KDTq82qWsUf80X+bWQQHItDcNDIxJnYlPhTHt5QSQMOZ4aHlP6VulvwWzoGea71DXSmQ4aPx4LnlcYNe8MCpQhytMyEWjuQ5b67Uw0DqST9cA8nE1GenwqVPORBF1eave3uD5sbhH0frCBeQKtGD77xKB2nuluG/qFggy5oSveYjEgwgq5OfO4JNSZFR2UUpNgc4AlF9KBibtZcSnSfpLrLw3rbmeBNkfugF4CIuVb6KjR2UqWumT8w8I7SsAY6nQF0OcuhkaApvcoZHhGhVmIbS5c4CsHAb+o2kMgqLFnSW5Zi4iFC6uhwdiepeW8w4eeGie7RpcEM6PpVsjxMG1qBzrIqmG+YzibzQC1WsGNpqgZodocw1RnBug+5wBDFjkATbyhM3JKolAmVWjyTRiej/ysoGAgqKbW/kXuRrXECCpO8cvqG0z4JpdZ8tXTTQp3b+9VU63EuOWjcjWdT";
+  public static final String AWS_ACCESS_KEY = "";
+  public static final String AWS_SECRET_KEY = "";
+  public static final String AWS_SESSION_TOKEN = "";
   public static final String AWS_REGION = "us-west-2";
 }
