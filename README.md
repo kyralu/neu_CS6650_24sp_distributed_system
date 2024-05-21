@@ -1,2 +1,4 @@
 # neu_CS6650_24sp_distributed_system
-neu 24sp 
+A scalable distributed cloud-based system running on EC2 instances.
+Multithreaded client -> Server running on Apache Tomcat
+Using RabbitMQ as message broker and DynamoDB as persistant data storage with read through cache Redis.
